@@ -3,7 +3,7 @@ import { h, Component } from 'preact';
 import * as style from './style.css';
 import 'add-css:./style.css';
 import { cleanSet, cleanMerge } from '../../util/clean-modify';
-
+import * as optionsStyle from 'client/lazy-app/Compress/Options/style.css';
 import type { SourceImage, OutputType } from '..';
 import {
   EncoderOptions,
@@ -25,18 +25,21 @@ interface Props {
   source?: SourceImage;
   encoderState?: EncoderState;
   processorState: ProcessorState;
+  onlyConfig?: boolean;
   onEncoderTypeChange(index: 0 | 1, newType: OutputType): void;
   onEncoderOptionsChange(index: 0 | 1, newOptions: EncoderOptions): void;
   onProcessorOptionsChange(index: 0 | 1, newOptions: ProcessorState): void;
   onCopyToOtherSideClick(index: 0 | 1): void;
   onSaveSideSettingsClick(index: 0 | 1): void;
   onImportSideSettingsClick(index: 0 | 1): void;
+  onScaleChange?(value: number): void;
 }
 
 interface State {
   supportedEncoderMap?: PartialButNotUndefined<typeof encoderMap>;
   leftSideSettings?: string | null;
   rightSideSettings?: string | null;
+  bulkSettings?: string | null;
 }
 
 type PartialButNotUndefined<T> = {
@@ -146,15 +149,20 @@ export default class Options extends Component<Props, State> {
   private onImportSideSettingsClick = () => {
     this.props.onImportSideSettingsClick(this.props.index);
   };
+  private onScaleChange = (e: Event) => {
+    const target = e.target as HTMLInputElement;
+    this.props.onScaleChange?.(Number(target.value));
+  };
 
   render(
-    { source, encoderState, processorState }: Props,
+    { source, encoderState, processorState, onlyConfig }: Props,
     { supportedEncoderMap }: State,
   ) {
     const encoder = encoderState && encoderMap[encoderState.type];
     const EncoderOptionComponent =
       encoder && 'Options' in encoder ? encoder.Options : undefined;
 
+    console.log(encoderState, processorState);
     return (
       <div
         class={
@@ -168,46 +176,56 @@ export default class Options extends Component<Props, State> {
             <div>
               <h3 class={style.optionsTitle}>
                 <div class={style.titleAndButtons}>
-                  Edit
-                  <button
-                    class={style.copyOverButton}
-                    title="Copy settings to other side"
-                    onClick={this.onCopyToOtherSideClick}
-                  >
-                    <SwapIcon />
-                  </button>
+                  {onlyConfig ? (
+                    <div></div>
+                  ) : (
+                    <button
+                      class={style.copyOverButton}
+                      title="Copy settings to other side"
+                      onClick={this.onCopyToOtherSideClick}
+                    >
+                      <SwapIcon />
+                    </button>
+                  )}
+
                   <button
                     class={style.saveButton}
-                    title="Save side settings"
+                    title={
+                      onlyConfig ? 'Save bulk settings' : 'Save side settings'
+                    }
                     onClick={this.onSaveSideSettingClick}
                   >
                     <SaveIcon />
                   </button>
-                  <button
-                    class={
-                      style.importButton +
-                      ' ' +
-                      (!this.state.leftSideSettings && this.props.index === 0
-                        ? style.buttonOpacity
-                        : '') +
-                      ' ' +
-                      (!this.state.rightSideSettings && this.props.index === 1
-                        ? style.buttonOpacity
-                        : '')
-                    }
-                    title="Import saved side settings"
-                    onClick={this.onImportSideSettingsClick}
-                    disabled={
-                      // Disabled if this side's settings haven't been saved
-                      (!this.state.leftSideSettings &&
-                        this.props.index === 0) ||
-                      (!this.state.rightSideSettings && this.props.index === 1)
-                    }
-                  >
-                    <ImportIcon />
-                  </button>
+                  {onlyConfig ? null : (
+                    <button
+                      class={
+                        style.importButton +
+                        ' ' +
+                        (!this.state.leftSideSettings && this.props.index === 0
+                          ? style.buttonOpacity
+                          : '') +
+                        ' ' +
+                        (!this.state.rightSideSettings && this.props.index === 1
+                          ? style.buttonOpacity
+                          : '')
+                      }
+                      title="Import saved side settings"
+                      onClick={this.onImportSideSettingsClick}
+                      disabled={
+                        // Disabled if this side's settings haven't been saved
+                        (!this.state.leftSideSettings &&
+                          this.props.index === 0) ||
+                        (!this.state.rightSideSettings &&
+                          this.props.index === 1)
+                      }
+                    >
+                      <ImportIcon />
+                    </button>
+                  )}
                 </div>
               </h3>
+
               <label class={style.sectionEnabler}>
                 Resize
                 <Toggle
@@ -218,13 +236,31 @@ export default class Options extends Component<Props, State> {
               </label>
               <Expander>
                 {processorState.resize.enabled ? (
-                  <ResizeOptionsComponent
-                    isVector={Boolean(source && source.vectorImage)}
-                    inputWidth={source ? source.preprocessed.width : 1}
-                    inputHeight={source ? source.preprocessed.height : 1}
-                    options={processorState.resize}
-                    onChange={this.onResizeOptionsChange}
-                  />
+                  onlyConfig ? (
+                    <div class={optionsStyle.optionsSection}>
+                      <label class={style.optionTextFirst}>
+                        Scale:
+                        <input
+                          required
+                          class={style.textField}
+                          name="width"
+                          type="number"
+                          min="1"
+                          value={processorState.resize.scale}
+                          onInput={this.onScaleChange}
+                        />
+                        %
+                      </label>
+                    </div>
+                  ) : (
+                    <ResizeOptionsComponent
+                      isVector={Boolean(source && source.vectorImage)}
+                      inputWidth={source ? source.preprocessed.width : 1}
+                      inputHeight={source ? source.preprocessed.height : 1}
+                      options={processorState.resize}
+                      onChange={this.onResizeOptionsChange}
+                    />
+                  )
                 ) : null}
               </Expander>
 

@@ -54,7 +54,7 @@ self.addEventListener('fetch', (event) => {
   // Don't care about other-origin URLs
   if (url.origin !== location.origin) return;
 
-  if (url.pathname === '/editor') {
+  if (['/editor', '/bulk'].includes(url.pathname)) {
     event.respondWith(Response.redirect('/'));
     return;
   }

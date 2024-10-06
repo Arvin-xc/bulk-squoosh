@@ -39,6 +39,7 @@ export type Options =
 export interface ResizeOptionsCommon {
   width: number;
   height: number;
+  scale?: number;
   fitMethod: 'stretch' | 'contain';
 }
 

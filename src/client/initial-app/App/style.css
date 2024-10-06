@@ -66,3 +66,39 @@
   --size: 225px;
   --stroke-width: 26px;
 }
+
+.options-1-theme {
+  --main-theme-color: var(--pink);
+  --hot-theme-color: var(--hot-pink);
+  --header-text-color: var(--white);
+  --scroller-radius: var(--options-radius) var(--options-radius) 0 0;
+  --rotate-copyoverbutton-angle: 90deg; /* To point down */
+
+  @media (min-width: 600px) {
+    --scroller-radius: 0 var(--options-radius) var(--options-radius) 0;
+    --rotate-copyoverbutton-angle: 0deg; /* To point right (no change) */
+  }
+}
+
+.options {
+  position: fixed;
+  right: 6px;
+  bottom: 6px;
+  max-width: 300px;
+  max-height: 90vh;
+  overflow: auto;
+  margin: 0 auto;
+  width: calc(100% - 60px);
+  composes: options;
+  composes: options-1-theme;
+  grid-area: optsLeft;
+  z-index: 100;
+  color: #fff;
+}
+
+.options-button {
+  position: fixed;
+  cursor: pointer;
+  right: 20px;
+  bottom: 20px;
+}
