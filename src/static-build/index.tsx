@@ -54,6 +54,8 @@ interface Output {
 
 const toOutput: Output = {
   'index.html': renderPage(<IndexPage />),
+  'google82a5f2177c0f2929.html':
+    'google-site-verification: google82a5f2177c0f2929.html',
   'manifest.json': JSON.stringify({
     name: 'Bulk Squoosh',
     short_name: 'Bulk Squoosh',
