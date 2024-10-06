@@ -17,7 +17,12 @@ import Toggle from './Toggle';
 import Select from './Select';
 import { Options as QuantOptionsComponent } from 'features/processors/quantize/client';
 import { Options as ResizeOptionsComponent } from 'features/processors/resize/client';
-import { ImportIcon, SaveIcon, SwapIcon } from 'client/lazy-app/icons';
+import {
+  ImportIcon,
+  ResetIcon,
+  SaveIcon,
+  SwapIcon,
+} from 'client/lazy-app/icons';
 
 interface Props {
   index: 0 | 1;
@@ -30,6 +35,7 @@ interface Props {
   onEncoderOptionsChange(index: 0 | 1, newOptions: EncoderOptions): void;
   onProcessorOptionsChange(index: 0 | 1, newOptions: ProcessorState): void;
   onCopyToOtherSideClick(index: 0 | 1): void;
+  onResetBulkSettings?(): void;
   onSaveSideSettingsClick(index: 0 | 1): void;
   onImportSideSettingsClick(index: 0 | 1): void;
   onScaleChange?(value: number): void;
@@ -141,6 +147,9 @@ export default class Options extends Component<Props, State> {
   private onCopyToOtherSideClick = () => {
     this.props.onCopyToOtherSideClick(this.props.index);
   };
+  private onResetBulkSettings = () => {
+    this.props.onResetBulkSettings?.();
+  };
 
   private onSaveSideSettingClick = () => {
     this.props.onSaveSideSettingsClick(this.props.index);
@@ -162,7 +171,6 @@ export default class Options extends Component<Props, State> {
     const EncoderOptionComponent =
       encoder && 'Options' in encoder ? encoder.Options : undefined;
 
-    console.log(encoderState, processorState);
     return (
       <div
         class={
@@ -177,7 +185,13 @@ export default class Options extends Component<Props, State> {
               <h3 class={style.optionsTitle}>
                 <div class={style.titleAndButtons}>
                   {onlyConfig ? (
-                    <div></div>
+                    <button
+                      class={style.resetButton}
+                      title="Reset bulk settings"
+                      onClick={this.onResetBulkSettings}
+                    >
+                      <ResetIcon />
+                    </button>
                   ) : (
                     <button
                       class={style.copyOverButton}
@@ -239,17 +253,18 @@ export default class Options extends Component<Props, State> {
                   onlyConfig ? (
                     <div class={optionsStyle.optionsSection}>
                       <label class={style.optionTextFirst}>
-                        Scale:
-                        <input
-                          required
-                          class={style.textField}
-                          name="width"
-                          type="number"
-                          min="1"
-                          value={processorState.resize.scale}
-                          onInput={this.onScaleChange}
-                        />
-                        %
+                        Percent:
+                        <div>
+                          <input
+                            required
+                            class={style.textField}
+                            name="width"
+                            type="number"
+                            min="1"
+                            value={processorState.resize.scale}
+                            onInput={this.onScaleChange}
+                          />
+                        </div>
                       </label>
                     </div>
                   ) : (

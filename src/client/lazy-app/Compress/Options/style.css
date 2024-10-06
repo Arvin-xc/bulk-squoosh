@@ -120,6 +120,7 @@
 }
 
 .copy-over-button {
+  width: 24px;
   composes: title-button;
 
   /* Make the filled arrow point towards the other options element */
@@ -136,7 +137,8 @@
 }
 
 .save-button,
-.import-button {
+.import-button,
+.reset-button {
   composes: title-button;
 
   svg {
@@ -147,6 +149,10 @@
     outline: var(--header-text-color) solid 2px;
     outline-offset: 0.25em;
   }
+}
+.reset-button {
+  width: 24px;
+  color: #fff;
 }
 
 .button-opacity {

@@ -23,6 +23,42 @@ import { OutputType } from 'client/lazy-app/Compress';
 const ROUTE_EDITOR = '/editor';
 const ROUTE_BULK = '/bulk';
 
+const defaultBulkSettings = {
+  processorState: {
+    quantize: { enabled: false, zx: 0, maxNumColors: 256, dither: 1 },
+    resize: {
+      enabled: false,
+      width: 1,
+      height: 1,
+      scale: 100,
+      method: 'lanczos3',
+      fitMethod: 'stretch',
+      premultiply: true,
+      linearRGB: true,
+    },
+  },
+  encoderState: {
+    type: 'mozJPEG',
+    options: {
+      quality: 75,
+      baseline: false,
+      arithmetic: false,
+      progressive: true,
+      optimize_coding: true,
+      smoothing: 0,
+      color_space: 3,
+      quant_table: 3,
+      trellis_multipass: false,
+      trellis_opt_zero: false,
+      trellis_opt_table: false,
+      trellis_loops: 1,
+      auto_subsample: true,
+      chroma_subsample: 2,
+      separate_chroma_quality: false,
+      chroma_quality: 75,
+    },
+  },
+};
 const compressPromise = import('client/lazy-app/Compress');
 const swBridgePromise = import('client/lazy-app/sw-bridge');
 const tablePromise = import('client/lazy-app/Compress/Table');
@@ -38,6 +74,7 @@ interface State {
   awaitingShareTarget: boolean;
   files: File[];
   isEditorOpen: Boolean;
+  isBulkOpen: boolean;
   bulkSettings: {
     processorState: ProcessorState;
     encoderState?: EncoderState;
@@ -55,44 +92,10 @@ export default class App extends Component<Props, State> {
     ),
     bulkSettings: localStorage.getItem('bulkSettings')
       ? JSON.parse(localStorage.getItem('bulkSettings') as string)
-      : {
-          processorState: {
-            quantize: { enabled: false, zx: 0, maxNumColors: 256, dither: 1 },
-            resize: {
-              enabled: false,
-              width: 1,
-              height: 1,
-              scale: 100,
-              method: 'lanczos3',
-              fitMethod: 'stretch',
-              premultiply: true,
-              linearRGB: true,
-            },
-          },
-          encoderState: {
-            type: 'mozJPEG',
-            options: {
-              quality: 75,
-              baseline: false,
-              arithmetic: false,
-              progressive: true,
-              optimize_coding: true,
-              smoothing: 0,
-              color_space: 3,
-              quant_table: 3,
-              trellis_multipass: false,
-              trellis_opt_zero: false,
-              trellis_opt_table: false,
-              trellis_loops: 1,
-              auto_subsample: true,
-              chroma_subsample: 2,
-              separate_chroma_quality: false,
-              chroma_quality: 75,
-            },
-          },
-        },
+      : { ...defaultBulkSettings },
     showOptions: false,
     isEditorOpen: false,
+    isBulkOpen: false,
     files: [],
     Compress: undefined,
   };
@@ -190,7 +193,10 @@ export default class App extends Component<Props, State> {
   };
 
   private onPopState = () => {
-    this.setState({ isEditorOpen: location.pathname === ROUTE_EDITOR });
+    this.setState({
+      isEditorOpen: location.pathname === ROUTE_EDITOR,
+      isBulkOpen: location.pathname === ROUTE_BULK,
+    });
   };
 
   private openEditor = () => {
@@ -201,11 +207,13 @@ export default class App extends Component<Props, State> {
     history.pushState(null, '', editorURL.href);
     this.setState({ isEditorOpen: true });
   };
+
   private openBulkTable = () => {
+    if (this.state.isBulkOpen) return;
     const editorURL = new URL(location.href);
     editorURL.pathname = ROUTE_BULK;
     history.pushState(null, '', editorURL.href);
-    this.setState({ isEditorOpen: true });
+    this.setState({ isBulkOpen: true });
   };
 
   private updateOptionsState = (showOptions: boolean) => {
@@ -311,11 +319,30 @@ export default class App extends Component<Props, State> {
       ),
     });
   }
+  private async onResetBulkSettings() {
+    const preSettings = { ...this.state.bulkSettings };
+    this.setState({
+      bulkSettings: defaultBulkSettings as {
+        processorState: ProcessorState;
+        encoderState?: EncoderState;
+      },
+    });
+    const result = await this.showSnack('Reset bulk settings!', {
+      timeout: 3000,
+      actions: ['undo', 'dismiss'],
+    });
+    if (result === 'undo') {
+      this.setState({
+        bulkSettings: preSettings,
+      });
+    }
+  }
   render(
     {}: Props,
     {
       files,
       isEditorOpen,
+      isBulkOpen,
       Compress,
       Table,
       awaitingShareTarget,
@@ -327,23 +354,21 @@ export default class App extends Component<Props, State> {
     const showSpinner = awaitingShareTarget || (isEditorOpen && !Compress);
 
     return (
-      <div class={style.app} onClick={() => this.updateOptionsState(false)}>
+      <div class={style.app}>
         <file-drop onfiledrop={this.onFileDrop} class={style.drop}>
           {showSpinner ? (
             <loading-spinner class={style.appLoader} />
           ) : isEditorOpen ? (
-            files.length >= 2 ? (
-              Table && (
-                <Table onBack={back} settings={bulkSettings} files={files} />
-              )
-            ) : (
-              Compress && (
-                <Compress
-                  file={files[0]}
-                  showSnack={this.showSnack}
-                  onBack={back}
-                />
-              )
+            Compress && (
+              <Compress
+                file={files[0]!}
+                showSnack={this.showSnack}
+                onBack={back}
+              />
+            )
+          ) : isBulkOpen ? (
+            Table && (
+              <Table onBack={back} settings={bulkSettings} files={files} />
             )
           ) : (
             <Fragment>
@@ -367,6 +392,7 @@ export default class App extends Component<Props, State> {
                       onSaveSideSettingsClick={this.onSaveBulkSettingClick}
                       onImportSideSettingsClick={this.onImportSideSettingsClick}
                       onScaleChange={(value) => this.onScaleChange(value)}
+                      onResetBulkSettings={() => this.onResetBulkSettings()}
                     />
                   )
                 ) : (
