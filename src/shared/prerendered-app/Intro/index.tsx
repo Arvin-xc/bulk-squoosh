@@ -245,7 +245,7 @@ export default class Intro extends Component<Props, State> {
             <img
               class={style.logo}
               src={logoWithText}
-              alt="Squoosh"
+              alt="Bulk Squoosh"
               width="539"
               height="162"
             />
@@ -358,8 +358,8 @@ export default class Intro extends Component<Props, State> {
                 <div class={style.infoTextWrapper}>
                   <h2 class={style.infoTitle}>Small</h2>
                   <p class={style.infoCaption}>
-                    Smaller images mean faster load times. Squoosh can reduce
-                    file size and maintain high quality.
+                    Smaller images mean faster load times. Bulk Squoosh can
+                    reduce file size and maintain high quality.
                   </p>
                 </div>
                 <div class={style.infoImgWrapper}>
@@ -410,7 +410,7 @@ export default class Intro extends Component<Props, State> {
                   <h2 class={style.infoTitle}>Secure</h2>
                   <p class={style.infoCaption}>
                     Worried about privacy? Images never leave your device since
-                    Squoosh does all the work locally.
+                    Bulk Squoosh does all the work locally.
                   </p>
                 </div>
                 <div class={style.infoImgWrapper}>
@@ -439,13 +439,13 @@ export default class Intro extends Component<Props, State> {
               <footer class={style.footerItems}>
                 <a
                   class={style.footerLink}
-                  href="https://github.com/GoogleChromeLabs/squoosh/blob/dev/README.md#privacy"
+                  href="https://github.com/Arvin-xc/bulk-squoosh/blob/dev/README.md#privacy"
                 >
                   Privacy
                 </a>
                 <a
                   class={style.footerLinkWithLogo}
-                  href="https://github.com/GoogleChromeLabs/squoosh"
+                  href="https://github.com/Arvin-xc/bulk-squoosh"
                 >
                   <img src={githubLogo} alt="" width="10" height="10" />
                   Source on Github

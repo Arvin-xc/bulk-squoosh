@@ -63,10 +63,11 @@ export function escapeStyleScriptContent(str: string): string {
 export const siteOrigin = (() => {
   if (process.env.DEV_PORT) return `http://localhost:${process.env.DEV_PORT}`;
   // https://docs.netlify.com/configure-builds/environment-variables/#build-metadata
-  if (process.env.CONTEXT === 'production') return 'https://squoosh.app';
+  if (process.env.CONTEXT === 'production')
+    return 'https://bulk-squoosh.vercel.app';
   if (process.env.DEPLOY_PRIME_URL) return process.env.DEPLOY_PRIME_URL;
   console.warn(
-    'Unable to determine site origin, defaulting to https://squoosh.app',
+    'Unable to determine site origin, defaulting to https://bulk-squoosh.vercel.app',
   );
-  return 'https://squoosh.app';
+  return 'https://bulk-squoosh.vercel.app';
 })();
