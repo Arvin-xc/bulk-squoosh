@@ -356,6 +356,33 @@ export default class Intro extends Component<Props, State> {
             <SlideOnScroll>
               <div class={style.infoContent}>
                 <div class={style.infoTextWrapper}>
+                  <h2 class={style.infoTitle}>Bulk</h2>
+                  <p class={style.infoCaption}>
+                    Bulk squoosh is based on squoosh with a few modifications to
+                    support bulk compression. You can adjust the compression
+                    configuration through the settings in the lower right
+                    corner.
+                  </p>
+                </div>
+                <div class={style.infoImgWrapper}>
+                  <img
+                    class={style.infoImg}
+                    src={simpleSectionAsset}
+                    alt="grid of multiple shrunk images displaying various options"
+                    width="538"
+                    height="384"
+                  />
+                </div>
+              </div>
+            </SlideOnScroll>
+          </div>
+        </section>
+
+        <section class={style.info}>
+          <div class={style.infoContainer}>
+            <SlideOnScroll>
+              <div class={style.infoContent}>
+                <div class={style.infoTextWrapper}>
                   <h2 class={style.infoTitle}>Small</h2>
                   <p class={style.infoCaption}>
                     Smaller images mean faster load times. Bulk Squoosh can
